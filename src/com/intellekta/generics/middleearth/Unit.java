@@ -11,7 +11,7 @@ public interface Unit {
         return typeOfUnit;
     }
 
-    protected void setTypeOfUnit(String typeOfUnit) {
+    protected void setTypeOfUnit(Unit typeOfUnit) {
         this.typeOfUnit = typeOfUnit;
     }
 }

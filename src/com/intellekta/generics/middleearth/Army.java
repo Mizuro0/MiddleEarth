@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Random;
 
 public class Army <U extends Unit>  {
-    private final List<Unit> cavalries = new ArrayList<>();
-    private final List<Unit> infantries = new ArrayList<>();
+    private final List<Cavalry> cavalries = new ArrayList<>();
+    private final List<Infantry> infantries = new ArrayList<>();
 
     private U u;
     public Army(U u) {
@@ -27,7 +27,7 @@ public class Army <U extends Unit>  {
         return armyList;
     }
 
-    public boolean recruit(String typeOfUnit) {
+    public boolean recruit(U typeOfUnit) {
         try {
             Unit unit = u.create(typeOfUnit);
             if(unit.getTypeOfUnit().equalsIgnoreCase("Cavalry")) {
