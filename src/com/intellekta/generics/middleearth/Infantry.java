@@ -1,4 +1,4 @@
 package com.intellekta.generics.middleearth;
 
-public interface Infantry {
+public interface Infantry extends Unit {
 }

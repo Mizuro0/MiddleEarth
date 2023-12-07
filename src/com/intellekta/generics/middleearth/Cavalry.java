@@ -1,4 +1,4 @@
 package com.intellekta.generics.middleearth;
 
-public interface Cavalry {
+public interface Cavalry extends Unit {
 }
