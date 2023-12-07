@@ -1,6 +1,6 @@
 package com.intellekta.generics.middleearth;
 
-public interface MiddleEarthUnit extends Unit {
+public class MiddleEarthUnit extends Unit {
     @Override
     public Unit create(String typeOfUnit) {
         Unit unit = new MiddleEarthUnit();

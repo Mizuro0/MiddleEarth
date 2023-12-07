@@ -1,6 +1,6 @@
 package com.intellekta.generics.middleearth;
 
-public interface MordorUnit extends Unit {
+public class MordorUnit extends Unit {
 
 
     @Override
