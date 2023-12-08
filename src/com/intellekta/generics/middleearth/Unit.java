@@ -1,6 +1,6 @@
 package com.intellekta.generics.middleearth;
 
-public interface Unit {
+public abstract class Unit {
 
 
 }
