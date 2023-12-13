@@ -3,10 +3,11 @@ package com.intellekta.generics.middleearth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Army <U extends Unit>  {
 
-    private final List<Unit> armyList = new ArrayList<>();
     private final List<Cavalry> cavalries = new ArrayList<>();
     private final List<Infantry> infantries = new ArrayList<>();
 
@@ -14,7 +15,6 @@ public class Army <U extends Unit>  {
     public Army(U u) {
         this.u = u;
     }
-
 
     public List<Cavalry> getCavalry() {
         return cavalries;
@@ -25,88 +25,60 @@ public class Army <U extends Unit>  {
     }
 
     public List<Unit> getArmy() {
-        return armyList;
+        return Stream.concat(cavalries.stream(), infantries.stream()).collect(Collectors.toList());
     }
 
-    public  boolean recruit(TypeOfUnit typeOfUnit) {
+    public  boolean recruit(U unit) {
         try {
-
-            if(typeOfUnit instanceof Cavalry) {
-                Cavalry cavalry = new Cavalry() {
-                    @Override
-                    public String toString() {
-                        if (u instanceof MiddleEarthUnit) {
-                            return "Middle Earth Cavalry";
-                        }
-                        else if (u instanceof MordorUnit) {
-                            return "Mordor Cavalry";
-                        }
-                        else {
-                            return null;
-                        }
-                    }
-                };
-                cavalries.add(cavalry);
-                armyList.add(0, cavalry);
+            if(unit instanceof Cavalry) {
+                cavalries.add((Cavalry) unit);
+                return true;
             }
-            else if (typeOfUnit instanceof Infantry) {
-                Infantry infantry = new Infantry() {
-                    @Override
-                    public String toString() {
-                        if (u instanceof MiddleEarthUnit) {
-                            return "Middle Earth Infantry";
-                        }
-                        else if (u instanceof MordorUnit) {
-                            return "Mordor Infantry";
-                        }
-                        else {
-                            return null;
-                        }
-                    }
-                };
-                infantries.add(infantry);
-                armyList.add(infantry);
+            else if (unit instanceof Infantry) {
+                infantries.add((Infantry) unit);
+                return true;
             }
-            return true;
+            return false;
         } catch (Exception ignored) {
             return false;
         }
     }
 
     public void print() {
+        List<Unit> armyList = getArmy();
         for(int i = 0; i < armyList.size(); i++) {
             System.out.println(armyList.get(i).toString());
         }
     }
 
-    public boolean realise(TypeOfUnit unit) {
+    public boolean realise(U unit) {
         try {
-            if(armyList.contains(unit)) {
-                if(cavalries.contains(unit)) {
-                    cavalries.remove(unit);
-                }
-                else {
-                    infantries.remove(unit);
-                }
-                armyList.remove(unit);
+            if(unit instanceof Cavalry) {
+                cavalries.remove(unit);
+                return true;
             }
-            return true;
+            else if(unit instanceof Infantry) {
+                infantries.remove(0);
+                return true;
+            }
+            return false;
         } catch (Exception e) {
             return false;
         }
     }
 
     public Unit getRandomUnit() {
+        List<Unit> armyList = getArmy();
         Random random = new Random();
         return armyList.get(random.nextInt(armyList.size()));
     }
 
-    public Unit getRandomUnit(TypeOfUnit typeOfUnit) {
+    public Unit getRandomUnit(U unit) {
         Random random = new Random();
-        if(typeOfUnit instanceof Cavalry) {
+        if(unit instanceof Cavalry) {
             return cavalries.get(random.nextInt(cavalries.size()));
         }
-        else if (typeOfUnit instanceof Infantry) {
+        else if (unit instanceof Infantry) {
             return infantries.get(random.nextInt(infantries.size()));
         }
         else {
