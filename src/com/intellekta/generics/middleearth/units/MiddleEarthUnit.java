@@ -1,4 +1,4 @@
-package com.intellekta.generics.middleearth;
+package com.intellekta.generics.middleearth.units;
 
 
 public interface MiddleEarthUnit extends Unit {

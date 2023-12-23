@@ -1,17 +1,22 @@
 package com.intellekta.generics.middleearth;
 
+import com.intellekta.generics.middleearth.units.Cavalry;
+import com.intellekta.generics.middleearth.units.Infantry;
+import com.intellekta.generics.middleearth.units.Unit;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Army <U extends Unit>  {
+public class Army<U extends Unit> {
 
     private final List<Cavalry> cavalries = new ArrayList<>();
     private final List<Infantry> infantries = new ArrayList<>();
 
     private U u;
+
     public Army(U u) {
         this.u = u;
     }
@@ -28,13 +33,12 @@ public class Army <U extends Unit>  {
         return Stream.concat(cavalries.stream(), infantries.stream()).collect(Collectors.toList());
     }
 
-    public  boolean recruit(U unit) {
+    public boolean recruit(U unit) {
         try {
-            if(unit instanceof Cavalry) {
+            if (unit instanceof Cavalry) {
                 cavalries.add((Cavalry) unit);
                 return true;
-            }
-            else if (unit instanceof Infantry) {
+            } else if (unit instanceof Infantry) {
                 infantries.add((Infantry) unit);
                 return true;
             }
@@ -46,18 +50,17 @@ public class Army <U extends Unit>  {
 
     public void print() {
         List<Unit> armyList = getArmy();
-        for(int i = 0; i < armyList.size(); i++) {
+        for (int i = 0; i < armyList.size(); i++) {
             System.out.println(armyList.get(i).toString());
         }
     }
 
     public boolean realise(U unit) {
         try {
-            if(unit instanceof Cavalry) {
+            if (unit instanceof Cavalry) {
                 cavalries.remove(unit);
                 return true;
-            }
-            else if(unit instanceof Infantry) {
+            } else if (unit instanceof Infantry) {
                 infantries.remove(0);
                 return true;
             }
@@ -75,18 +78,14 @@ public class Army <U extends Unit>  {
 
     public Unit getRandomUnit(U unit) {
         Random random = new Random();
-        if(unit instanceof Cavalry) {
+        if (unit instanceof Cavalry) {
             return cavalries.get(random.nextInt(cavalries.size()));
-        }
-        else if (unit instanceof Infantry) {
+        } else if (unit instanceof Infantry) {
             return infantries.get(random.nextInt(infantries.size()));
-        }
-        else {
+        } else {
             return null;
         }
     }
-
-
 
 
 }
