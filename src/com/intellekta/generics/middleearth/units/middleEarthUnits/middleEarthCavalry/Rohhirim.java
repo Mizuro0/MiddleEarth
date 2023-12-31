@@ -1,8 +1,8 @@
 package com.intellekta.generics.middleearth.units.middleEarthUnits.middleEarthCavalry;
 
-import com.intellekta.generics.middleearth.units.abstracts.AbstractInfantry;
-import com.intellekta.generics.middleearth.units.abstracts.Cavalry;
-import com.intellekta.generics.middleearth.units.abstracts.Human;
+import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.AbstractInfantry;
+import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.Cavalry;
+import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.Human;
 
 public class Rohhirim extends AbstractInfantry implements Human, Cavalry {
     protected Rohhirim(String name) {

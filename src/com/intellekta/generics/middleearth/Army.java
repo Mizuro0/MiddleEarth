@@ -1,8 +1,8 @@
 package com.intellekta.generics.middleearth;
 
-import com.intellekta.generics.middleearth.units.abstracts.Cavalry;
-import com.intellekta.generics.middleearth.units.abstracts.Infantry;
-import com.intellekta.generics.middleearth.units.abstracts.Unit;
+import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.Cavalry;
+import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.Infantry;
+import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.Unit;
 
 import java.util.ArrayList;
 import java.util.List;

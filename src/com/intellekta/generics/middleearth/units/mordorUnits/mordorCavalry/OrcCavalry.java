@@ -1,8 +1,8 @@
 package com.intellekta.generics.middleearth.units.mordorUnits.mordorCavalry;
 
-import com.intellekta.generics.middleearth.units.abstracts.AbstractCavalry;
-import com.intellekta.generics.middleearth.units.abstracts.Cavalry;
-import com.intellekta.generics.middleearth.units.abstracts.Orc;
+import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.AbstractCavalry;
+import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.Cavalry;
+import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.Orc;
 
 public class OrcCavalry extends AbstractCavalry implements Orc, Cavalry {
     protected OrcCavalry(String name) {

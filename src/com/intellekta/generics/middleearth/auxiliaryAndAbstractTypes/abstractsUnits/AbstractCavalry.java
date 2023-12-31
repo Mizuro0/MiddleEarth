@@ -1,4 +1,4 @@
-package com.intellekta.generics.middleearth.units.abstracts;
+package com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits;
 
 import java.util.Random;
 
