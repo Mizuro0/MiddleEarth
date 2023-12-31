@@ -9,7 +9,7 @@ import java.util.List;
 
 public class ClassFinder {
 
-    public static List<Class<?>> findClasses(String packageName) throws IOException, ClassNotFoundException {
+    public static List<Unit> findClasses(String packageName) throws IOException, ClassNotFoundException {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         String path = packageName.replace('.', '/');
         Enumeration<URL> resources = classLoader.getResources(path);

@@ -5,7 +5,7 @@ import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUn
 import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.Orc;
 
 public class OrcCavalry extends AbstractCavalry implements Orc, Cavalry {
-    protected OrcCavalry(String name) {
+    public OrcCavalry(String name) {
         super(name, 8, 10);
     }
 }
