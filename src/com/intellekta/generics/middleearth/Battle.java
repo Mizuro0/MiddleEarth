@@ -49,7 +49,7 @@ public class Battle {
         }
         for (int i = 0; i < middleEarthArmyCount; i++) {
             MiddleEarthUnit middleEarthUnit = (MiddleEarthUnit) createUnit(middleEarthClasses.get(random.nextInt(middleEarthClasses.size())));
-            middleEarthArmy.recruit((MiddleEarthUnit) middleEarthClasses.get(random.nextInt(middleEarthClasses.size())));
+            middleEarthArmy.recruit(middleEarthUnit);
         }
 
     }
@@ -121,5 +121,7 @@ public class Battle {
             throw new RuntimeException(e);
         }
     }
-    public static
+    public static Army<? extends Unit> battleProcess(Army<?> firstArmy, Army<?> secondArmy) {
+
+    }
 }
