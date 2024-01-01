@@ -1,10 +1,8 @@
 package com.intellekta.generics.middleearth;
 
-import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.ClassFinder;
-import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.MiddleEarthUnit;
-import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.MordorUnit;
-import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.Unit;
+import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.*;
 import com.intellekta.generics.middleearth.units.middleEarthUnits.middleEarthCavalry.HumanCavalry;
+import com.intellekta.generics.middleearth.units.middleEarthUnits.middleEarthCavalry.Rohhirim;
 import com.intellekta.generics.middleearth.units.middleEarthUnits.middleEarthCavalry.Wizard;
 import com.intellekta.generics.middleearth.units.middleEarthUnits.middleEarthInfantry.Elf;
 import com.intellekta.generics.middleearth.units.middleEarthUnits.middleEarthInfantry.HumanInfantry;
@@ -25,33 +23,56 @@ import java.util.Random;
 
 public class Battle {
 
-    private static Random random;
+    private static int minArmySize = 1000;
+    private static int maxArmySize = 10000;
+
+    private static int maxDifferencePercentage = 20;
+
+    private static Random random = new Random();
     private static final MordorUnit mordorUnit = new MordorUnit() {
     };
     private static final MiddleEarthUnit middleEarthUnit = new MiddleEarthUnit() {
     };
 
 
-    public static void fight() throws IOException, ClassNotFoundException {
+    public static void fight() {
 
-        List<Unit> mordorClasses = ClassFinder.findClasses("org.intellekta.generics.middleearth.units.mordorUnits");
-        List<Unit> middleEarthClasses = ClassFinder.findClasses("org.intellekta.generics.middleearth.units.middleEarthUnits");
-
+        List<Class<? extends Unit>> mordorClasses = null;
+        List<Class<? extends Unit>> middleEarthClasses = null;
+        try {
+            mordorClasses = ClassFinder.findClasses("com.intellekta.generics.middleearth.units.mordorUnits");
+            middleEarthClasses = ClassFinder.findClasses("com.intellekta.generics.middleearth.units.middleEarthUnits");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         Army<MordorUnit> mordorArmy = new Army<>(mordorUnit);
         Army<MiddleEarthUnit> middleEarthArmy = new Army<>(middleEarthUnit);
 
         int mordorArmyCount = random.nextInt((10 - 6 + 1) + 6);
-        int middleEarthArmyCount = random.nextInt((((mordorArmyCount + 2) - (mordorArmyCount - 2) + 1) + (mordorArmyCount - 2)));
+        int middleEarthArmyCount;
+
+        do {
+            middleEarthArmyCount = generateRandomArmySize(minArmySize, maxArmySize);
+        } while (Math.abs(mordorArmyCount - middleEarthArmyCount) > maxDifferencePercentage * 0.01 * maxArmySize);
 
         for (int i = 0; i < mordorArmyCount; i++) {
-            MordorUnit mordorUnit = (MordorUnit) createUnit(mordorClasses.get(random.nextInt(mordorClasses.size())));
-            mordorArmy.recruit(mordorUnit);
-        }
-        for (int i = 0; i < middleEarthArmyCount; i++) {
-            MiddleEarthUnit middleEarthUnit = (MiddleEarthUnit) createUnit(middleEarthClasses.get(random.nextInt(middleEarthClasses.size())));
-            middleEarthArmy.recruit(middleEarthUnit);
+            Unit mordorUnit = createUnit(mordorClasses.get(random.nextInt(mordorClasses.size())));
+            mordorArmy.recruit((MordorUnit) mordorUnit);
         }
 
+        Class<?> wizard = Wizard.class;
+
+        for (int i = 0; i < middleEarthArmyCount; i++) {
+            Unit middleEarthUnit = createUnit(middleEarthClasses.get(random.nextInt(middleEarthClasses.size())));
+            if(middleEarthArmy.getArmy().stream().anyMatch(wizard::isInstance) && middleEarthUnit instanceof Wizard) {
+                while (middleEarthUnit instanceof Wizard) {
+                    middleEarthUnit = createUnit(middleEarthClasses.get(random.nextInt(middleEarthClasses.size())));
+                }
+            }
+            middleEarthArmy.recruit((MiddleEarthUnit) middleEarthUnit);
+        }
     }
 
     public static void fight(Army<?> firstArmy, Army<?> secondArmy) {
@@ -59,55 +80,39 @@ public class Battle {
 
     }
 
-    public static Unit createUnit(Unit unit) {
-        Unit result = null;
-        if (unit instanceof MordorUnit) {
-            switch (unit.getClass().getSimpleName()) {
-                case "Troll":
-                    result = new Troll(nameForUnit("/Users/abdulahizriev/Documents/myJavaProject/src/namesForUnits/trollNames"));
-                    break;
-                case "Goblin":
-                    result = new Goblin(nameForUnit("/Users/abdulahizriev/Documents/myJavaProject/src/namesForUnits/goblinNames"));
-                    break;
-                case "UrukHai":
-                    result = new UrukHai(nameForUnit("/Users/abdulahizriev/Documents/myJavaProject/src/namesForUnits/orcNames"));
-                    break;
-                case "OrcInfantry":
-                    result = new OrcInfantry(nameForUnit("/Users/abdulahizriev/Documents/myJavaProject/src/namesForUnits/orcNames"));
-                    break;
-                case "OrcCavalry":
-                    result = new OrcCavalry(nameForUnit("/Users/abdulahizriev/Documents/myJavaProject/src/namesForUnits/orcNames"));
-                    break;
-                default:
-                    System.out.println("Incorrect type of unit");
-            }
-        } else if (unit instanceof MiddleEarthUnit) {
-            switch (unit.getClass().getSimpleName()) {
-                case "HumanCavalry":
-                    result = new HumanCavalry(nameForUnit("/Users/abdulahizriev/Documents/myJavaProject/src/namesForUnits/humanNames"));
-                    break;
-                case "HumanInfantry":
-                    result = new HumanInfantry(nameForUnit("/Users/abdulahizriev/Documents/myJavaProject/src/namesForUnits/humanNames"));
-                    break;
-                case "Wizard":
-                    result = new Wizard(nameForUnit("/Users/abdulahizriev/Documents/myJavaProject/src/namesForUnits/humanNames"));
-                    break;
-                case "Rohhirim":
-                    result = new Wizard(nameForUnit("/Users/abdulahizriev/Documents/myJavaProject/src/namesForUnits/humanNames"));
-                    break;
-                case "Elf":
-                    result = new Elf(nameForUnit("/Users/abdulahizriev/Documents/myJavaProject/src/namesForUnits/elfNames"));
-                    break;
-                case "WoodenElf":
-                    result = new WoodenElf(nameForUnit("/Users/abdulahizriev/Documents/myJavaProject/src/namesForUnits/elfNames"));
-            }
+    private static Unit createUnit(Class<? extends Unit> unit) {
+        String unitName = unit.getSimpleName();
+        String path = "/Users/abdulahizriev/Documents/myJavaProject/src/com/intellekta/generics/middleearth/namesForUnits/";
 
+        switch (unitName) {
+            case "Troll":
+                return new Troll(nameForUnit(path + "trollNames.txt"));
+            case "Goblin":
+                return new Goblin(nameForUnit(path + "goblinNames.txt"));
+            case "UrukHai":
+                return new UrukHai(nameForUnit(path + "orcNames.txt"));
+            case "OrcInfantry":
+                return new OrcInfantry(nameForUnit(path + "orcNames.txt"));
+            case "OrcCavalry":
+                return new OrcCavalry(nameForUnit(path + "orcNames.txt"));
+            case "HumanCavalry":
+                return new HumanCavalry(nameForUnit(path + "humanNames.txt"));
+            case "HumanInfantry":
+                return new HumanInfantry(nameForUnit(path + "humanNames.txt"));
+            case "Wizard":
+                return new Wizard(nameForUnit(path + "humanNames.txt"));
+            case "Rohhirim":
+                return new Rohhirim(nameForUnit(path + "humanNames.txt"));
+            case "Elf":
+                return new Elf(nameForUnit(path + "elfNames.txt"));
+            case "WoodenElf":
+                return new WoodenElf(nameForUnit(path + "elfNames.txt"));
+            default:
+                return null;
         }
+}
 
-        return result;
-    }
-
-    public static String nameForUnit(String filePath) {
+    private static String nameForUnit(String filePath) {
         try (FileReader fileReader = new FileReader(filePath);
              BufferedReader bufferedReader = new BufferedReader(fileReader)) {
             List<String> namesList = new ArrayList<>();
@@ -121,7 +126,20 @@ public class Battle {
             throw new RuntimeException(e);
         }
     }
-    public static Army<? extends Unit> battleProcess(Army<?> firstArmy, Army<?> secondArmy) {
+    private static Army<? extends Unit> battleProcess(Army<?> firstArmy, Army<?> secondArmy) {
+        return null;
+    }
 
+    private static Cavalry firstStage(Cavalry firstCav, Cavalry secondCav) {
+
+    }
+
+    private static int generateRandomArmySize(int minSize, int maxSize) {
+        Random random = new Random();
+        return random.nextInt(maxSize - minSize + 1) + minSize;
+    }
+
+    public static void main(String[] args) {
+        fight();
     }
 }

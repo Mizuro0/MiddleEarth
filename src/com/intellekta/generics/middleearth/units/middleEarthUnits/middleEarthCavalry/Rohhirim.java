@@ -5,7 +5,7 @@ import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUn
 import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.Human;
 
 public class Rohhirim extends AbstractInfantry implements Human, Cavalry {
-    protected Rohhirim(String name) {
+    public Rohhirim(String name) {
         super(name, 7, 8);
     }
 }

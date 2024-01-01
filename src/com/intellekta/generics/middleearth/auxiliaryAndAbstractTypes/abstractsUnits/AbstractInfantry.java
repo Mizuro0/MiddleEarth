@@ -10,7 +10,7 @@ public class AbstractInfantry implements Infantry{
     protected AbstractInfantry(String name, int minPower, int maxPower) {
         this.name = name;
         Random random = new Random();
-        this.power = random.nextInt(maxPower - minPower + 1) + minPower;
+        this.power = random.nextInt((maxPower - minPower + 1) + minPower);
     }
 
     protected boolean isAlive(){

@@ -9,12 +9,12 @@ import java.util.List;
 
 public class ClassFinder {
 
-    public static List<Unit> findClasses(String packageName) throws IOException, ClassNotFoundException {
+    public static List<Class<? extends Unit>> findClasses(String basePackage) throws IOException, ClassNotFoundException {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        String path = packageName.replace('.', '/');
+        String path = basePackage.replace('.', '/');
         Enumeration<URL> resources = classLoader.getResources(path);
 
-        List<Class<?>> classes = new ArrayList<>();
+        List<Class<? extends Unit>> unitClasses = new ArrayList<>();
         while (resources.hasMoreElements()) {
             URL resource = resources.nextElement();
             File directory = new File(resource.getFile());
@@ -24,16 +24,23 @@ public class ClassFinder {
                 if (files != null) {
                     for (File file : files) {
                         if (file.isDirectory()) {
-                            classes.addAll(findClasses(packageName + "." + file.getName()));
+                            // Рекурсивный вызов для подпакетов
+                            unitClasses.addAll(findClasses(basePackage + "." + file.getName()));
                         } else if (file.getName().endsWith(".class")) {
-                            String className = packageName + '.' + file.getName().substring(0, file.getName().length() - 6);
-                            classes.add(Class.forName(className));
+                            // Удаление расширения .class и добавление класса в список
+                            String className = basePackage + '.' + file.getName().substring(0, file.getName().length() - 6);
+                            Class<?> clazz = Class.forName(className);
+
+                            // Проверка, является ли класс подклассом Unit
+                            if (Unit.class.isAssignableFrom(clazz) && !clazz.equals(Unit.class)) {
+                                unitClasses.add((Class<? extends Unit>) clazz);
+                            }
                         }
                     }
                 }
             }
         }
 
-        return classes;
+        return unitClasses;
     }
 }
