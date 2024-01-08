@@ -1,8 +1,8 @@
 package com.intellekta.generics.middleearth.units.middleEarthUnits.middleEarthCavalry;
 
-import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.AbstractCavalry;
-import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.Cavalry;
-import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.MiddleEarthUnit;
+import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.AbstractCavalry;
+import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.Cavalry;
+import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.MiddleEarthUnit;
 
 public class Wizard extends AbstractCavalry implements MiddleEarthUnit, Cavalry {
     public Wizard(String name) {

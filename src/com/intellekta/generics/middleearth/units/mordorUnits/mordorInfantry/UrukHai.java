@@ -1,8 +1,8 @@
 package com.intellekta.generics.middleearth.units.mordorUnits.mordorInfantry;
 
-import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.AbstractInfantry;
-import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.Infantry;
-import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.Orc;
+import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.AbstractInfantry;
+import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.Infantry;
+import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.Orc;
 
 public class UrukHai extends AbstractInfantry implements Orc, Infantry {
     public UrukHai(String name) {

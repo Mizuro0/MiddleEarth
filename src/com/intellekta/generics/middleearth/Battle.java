@@ -1,6 +1,6 @@
 package com.intellekta.generics.middleearth;
 
-import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.*;
+import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.*;
 import com.intellekta.generics.middleearth.units.middleEarthUnits.middleEarthCavalry.HumanCavalry;
 import com.intellekta.generics.middleearth.units.middleEarthUnits.middleEarthCavalry.Rohhirim;
 import com.intellekta.generics.middleearth.units.middleEarthUnits.middleEarthCavalry.Wizard;
@@ -12,6 +12,7 @@ import com.intellekta.generics.middleearth.units.mordorUnits.mordorInfantry.Gobl
 import com.intellekta.generics.middleearth.units.mordorUnits.mordorInfantry.OrcInfantry;
 import com.intellekta.generics.middleearth.units.mordorUnits.mordorInfantry.Troll;
 import com.intellekta.generics.middleearth.units.mordorUnits.mordorInfantry.UrukHai;
+import org.testng.internal.collections.Pair;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -50,7 +51,8 @@ public class Battle {
         Army<MordorUnit> mordorArmy = new Army<>(mordorUnit);
         Army<MiddleEarthUnit> middleEarthArmy = new Army<>(middleEarthUnit);
 
-        int mordorArmyCount = random.nextInt((10 - 6 + 1) + 6);
+
+        int mordorArmyCount = random.nextInt(maxArmySize - minArmySize + 1) + minArmySize;
         int middleEarthArmyCount;
 
         do {
@@ -66,13 +68,14 @@ public class Battle {
 
         for (int i = 0; i < middleEarthArmyCount; i++) {
             Unit middleEarthUnit = createUnit(middleEarthClasses.get(random.nextInt(middleEarthClasses.size())));
-            if(middleEarthArmy.getArmy().stream().anyMatch(wizard::isInstance) && middleEarthUnit instanceof Wizard) {
+            if (middleEarthArmy.getArmy().stream().anyMatch(wizard::isInstance) && middleEarthUnit instanceof Wizard) {
                 while (middleEarthUnit instanceof Wizard) {
                     middleEarthUnit = createUnit(middleEarthClasses.get(random.nextInt(middleEarthClasses.size())));
                 }
             }
             middleEarthArmy.recruit((MiddleEarthUnit) middleEarthUnit);
         }
+        System.out.println(battleProcess(mordorArmy, middleEarthArmy));
     }
 
     public static void fight(Army<?> firstArmy, Army<?> secondArmy) {
@@ -110,7 +113,7 @@ public class Battle {
             default:
                 return null;
         }
-}
+    }
 
     private static String nameForUnit(String filePath) {
         try (FileReader fileReader = new FileReader(filePath);
@@ -126,16 +129,71 @@ public class Battle {
             throw new RuntimeException(e);
         }
     }
-    private static Army<? extends Unit> battleProcess(Army<?> firstArmy, Army<?> secondArmy) {
-        return null;
+
+    private static Class<?> battleProcess(Army<MordorUnit> firstArmy, Army<MiddleEarthUnit> secondArmy) {
+        Pair<Class<?>, List<?>> survivedCavalries = phases(firstArmy.getCavalry(), secondArmy.getCavalry());
+        Pair<Class<?>, List<?>> survivedInfantries = phases(firstArmy.getInfantries(), secondArmy.getInfantries());
+        Class<?> firstPhasesWinner = survivedCavalries.first();
+        Class<?> secondPhasesWinner = survivedInfantries.first();
+        Class<?> battleWinner = null;
+        if (!firstPhasesWinner.equals(secondPhasesWinner)) {
+            battleWinner = phases(survivedCavalries.second(), survivedInfantries.second()).first();
+        }
+        else {
+            battleWinner = survivedCavalries.first();
+        }
+        return battleWinner;
     }
 
-    private static Cavalry firstStage(Cavalry firstCav, Cavalry secondCav) {
+    private static Pair<Class<?>, List<?>> phases(List<?> units, List<?> otherUnits) {
+        List<Object> survivingUnits = new ArrayList<>(units);
+        List<Object> survivingOtherUnits = new ArrayList<>(otherUnits);
 
+        while (!survivingUnits.isEmpty() && !survivingOtherUnits.isEmpty()) {
+            Object unit1 = survivingUnits.get(random.nextInt(survivingUnits.size()));
+            Object unit2 = survivingOtherUnits.get(random.nextInt(survivingOtherUnits.size()));
+
+            int duelResult = duel((AbstractUnit) unit1, (AbstractUnit) unit2);
+            if (duelResult == 2) {
+                survivingUnits.remove(unit1);
+            } else if (duelResult == 1) {
+                survivingOtherUnits.remove(unit2);
+            }
+        }
+
+        if (!survivingUnits.isEmpty()) {
+            return new Pair<>(getUnitClass(units.get(0)), survivingUnits);
+        } else {
+            return new Pair<>(getUnitClass(otherUnits.get(0)), survivingOtherUnits);
+        }
+    }
+
+    private static Class<?> getUnitClass(Object unit) {
+        if (unit instanceof MordorUnit) {
+            return MordorUnit.class;
+        } else if (unit instanceof MiddleEarthUnit) {
+            return MiddleEarthUnit.class;
+        } else {
+            throw new IllegalArgumentException("Unknown unit class: " + unit.getClass());
+        }
+    }
+
+    private static int duel(AbstractUnit unit1, AbstractUnit unit2) {
+        int result = random.nextInt(2) + 1;
+        return result == 1 ? doDuelRound(unit1, unit2) : doDuelRound(unit2, unit1);
+    }
+
+    private static int doDuelRound(AbstractUnit attacker, AbstractUnit defender) {
+        attacker.strike(defender);
+        if (defender.isAlive()) {
+            defender.strike(attacker);
+            return attacker.isAlive() ? 3 : 2;
+        } else {
+            return 1;
+        }
     }
 
     private static int generateRandomArmySize(int minSize, int maxSize) {
-        Random random = new Random();
         return random.nextInt(maxSize - minSize + 1) + minSize;
     }
 

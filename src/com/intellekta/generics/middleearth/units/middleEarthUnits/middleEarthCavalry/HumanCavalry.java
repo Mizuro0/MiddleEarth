@@ -1,8 +1,8 @@
 package com.intellekta.generics.middleearth.units.middleEarthUnits.middleEarthCavalry;
 
-import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.AbstractCavalry;
-import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.Cavalry;
-import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits.Human;
+import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.AbstractCavalry;
+import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.Cavalry;
+import com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.Human;
 
 public class HumanCavalry extends AbstractCavalry implements Human, Cavalry {
 

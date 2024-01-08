@@ -1,4 +1,4 @@
-package com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes.abstractsUnits;
+package com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes;
 
 import java.io.File;
 import java.io.IOException;
