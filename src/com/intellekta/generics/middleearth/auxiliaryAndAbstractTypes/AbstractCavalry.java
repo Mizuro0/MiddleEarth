@@ -2,16 +2,14 @@ package com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes;
 
 import java.util.Random;
 
-public abstract class AbstractCavalry extends AbstractUnit {
-    protected String subclass;
+public abstract class AbstractCavalry extends AbstractUnit implements Cavalry {
     protected Mount mount;
 
     protected AbstractCavalry(String name, int minPower, int maxPower) {
         super(name, minPower, maxPower);
-        subclass = this.getClass().getSimpleName();
-        if (subclass.equals("HumanCavalry")) {
+        if (this instanceof MiddleEarthUnit) {
             mount = new Horse();
-        } else if (subclass.equals("OrcCavalry")) {
+        } else if (this instanceof MordorUnit) {
             mount = new Warg();
         }
     }

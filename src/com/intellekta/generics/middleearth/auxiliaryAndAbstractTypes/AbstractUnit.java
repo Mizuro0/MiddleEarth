@@ -2,7 +2,7 @@ package com.intellekta.generics.middleearth.auxiliaryAndAbstractTypes;
 
 import java.util.Random;
 
-public abstract class AbstractUnit {
+public abstract class AbstractUnit implements Unit {
     protected String name;
     protected int power;
 
@@ -13,7 +13,7 @@ public abstract class AbstractUnit {
     }
 
     public boolean isAlive() {
-        return power > 0;
+        return this.power > 0;
     }
 
     public <T> void strike(T t) {
@@ -24,4 +24,12 @@ public abstract class AbstractUnit {
     }
 
     protected abstract void receiveDamage(int damage);
+
+    public String getName() {
+        return name;
+    }
+
+    public int getPower() {
+        return power;
+    }
 }

@@ -24,14 +24,11 @@ public class ClassFinder {
                 if (files != null) {
                     for (File file : files) {
                         if (file.isDirectory()) {
-                            // Рекурсивный вызов для подпакетов
                             unitClasses.addAll(findClasses(basePackage + "." + file.getName()));
                         } else if (file.getName().endsWith(".class")) {
-                            // Удаление расширения .class и добавление класса в список
                             String className = basePackage + '.' + file.getName().substring(0, file.getName().length() - 6);
                             Class<?> clazz = Class.forName(className);
 
-                            // Проверка, является ли класс подклассом Unit
                             if (Unit.class.isAssignableFrom(clazz) && !clazz.equals(Unit.class)) {
                                 unitClasses.add((Class<? extends Unit>) clazz);
                             }

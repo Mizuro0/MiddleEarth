@@ -19,13 +19,23 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
 public class Battle {
 
-    private static int minArmySize = 1000;
-    private static int maxArmySize = 10000;
+    private static int phaseN = 1;
+
+    private static final String PHASE_START_MESSAGE = "Phase %d:";
+    private static final String STRIKE_MESSAGE_FORMAT = "%s %s has power %d strikes %s %s has power %d and %s";
+    private static final String KILLS_HIM = "kills him";
+    private static final String DOES_NOT_KILL_HIM = "does not kill him";
+    private static final String WINNERS_LIST_MESSAGE = "Army of %s has won the battle. The winners list:";
+
+
+    private static int minArmySize = 3;
+    private static int maxArmySize = 10;
 
     private static int maxDifferencePercentage = 20;
 
@@ -36,7 +46,12 @@ public class Battle {
     };
 
 
-    public static void fight() {
+    public static void fight() throws ArmyMinSizeError {
+
+        if (minArmySize <= 2) {
+            System.out.println("Minimal size of army is incorrect, it must be more than 2!");
+            throw new ArmyMinSizeError();
+        }
 
         List<Class<? extends Unit>> mordorClasses = null;
         List<Class<? extends Unit>> middleEarthClasses = null;
@@ -54,10 +69,15 @@ public class Battle {
 
         int mordorArmyCount = random.nextInt(maxArmySize - minArmySize + 1) + minArmySize;
         int middleEarthArmyCount;
+        mordorArmy.recruit(new OrcInfantry("Feldgulg Moghtub"));
+        mordorArmy.recruit(new OrcCavalry("Mash Rugomakh"));
 
         do {
             middleEarthArmyCount = generateRandomArmySize(minArmySize, maxArmySize);
-        } while (Math.abs(mordorArmyCount - middleEarthArmyCount) > maxDifferencePercentage * 0.01 * maxArmySize);
+        } while (Math.abs(mordorArmyCount - middleEarthArmyCount) > maxDifferencePercentage * 0.01 * maxArmySize && middleEarthArmyCount > 0);
+
+        middleEarthArmy.recruit(new HumanInfantry("Peter Bethrinthafk"));
+        middleEarthArmy.recruit(new HumanCavalry("Ezekiel Fonzenzur"));
 
         for (int i = 0; i < mordorArmyCount; i++) {
             Unit mordorUnit = createUnit(mordorClasses.get(random.nextInt(mordorClasses.size())));
@@ -75,12 +95,16 @@ public class Battle {
             }
             middleEarthArmy.recruit((MiddleEarthUnit) middleEarthUnit);
         }
-        System.out.println(battleProcess(mordorArmy, middleEarthArmy));
+        printArmy(mordorArmy);
+        printArmy(middleEarthArmy);
+        battleProcess(mordorArmy, middleEarthArmy);
     }
 
-    public static void fight(Army<?> firstArmy, Army<?> secondArmy) {
-
-
+    public static void fight(Army<? extends Unit> firstArmy, Army<? extends Unit> secondArmy) throws ArmyMinSizeError {
+        if(minArmySize <= 2) {
+            throw new ArmyMinSizeError();
+        }
+        battleProcess(firstArmy, secondArmy);
     }
 
     private static Unit createUnit(Class<? extends Unit> unit) {
@@ -130,43 +154,68 @@ public class Battle {
         }
     }
 
-    private static Class<?> battleProcess(Army<MordorUnit> firstArmy, Army<MiddleEarthUnit> secondArmy) {
+    private static void battleProcess(Army<?> firstArmy, Army<?> secondArmy) {
         Pair<Class<?>, List<?>> survivedCavalries = phases(firstArmy.getCavalry(), secondArmy.getCavalry());
         Pair<Class<?>, List<?>> survivedInfantries = phases(firstArmy.getInfantries(), secondArmy.getInfantries());
+        Pair<Class<?>, List<?>> thirdPhaseWinner;
         Class<?> firstPhasesWinner = survivedCavalries.first();
         Class<?> secondPhasesWinner = survivedInfantries.first();
-        Class<?> battleWinner = null;
+
+        Pair<Class<?>, List<?>> battleWinner = null;
+        List<AbstractUnit> survivedArmy = new ArrayList<>();
         if (!firstPhasesWinner.equals(secondPhasesWinner)) {
-            battleWinner = phases(survivedCavalries.second(), survivedInfantries.second()).first();
+            battleWinner = phases(survivedCavalries.second(), survivedInfantries.second());
+            survivedArmy = (List<AbstractUnit>) battleWinner.second();
+        } else {
+            survivedArmy.addAll((Collection<? extends AbstractUnit>) survivedCavalries.second());
+            survivedArmy.addAll((Collection<? extends AbstractUnit>) survivedInfantries.second());
+            battleWinner = new Pair<>(survivedCavalries.first(), survivedArmy);
         }
-        else {
-            battleWinner = survivedCavalries.first();
+        System.out.printf(WINNERS_LIST_MESSAGE + "\n", battleWinner.first().getSimpleName());
+        for (AbstractUnit u : survivedArmy) {
+            System.out.printf("%s %s has power %d \n", u.getClass().getSimpleName(), u.getName(), u.getPower());
         }
-        return battleWinner;
     }
 
     private static Pair<Class<?>, List<?>> phases(List<?> units, List<?> otherUnits) {
-        List<Object> survivingUnits = new ArrayList<>(units);
-        List<Object> survivingOtherUnits = new ArrayList<>(otherUnits);
+        System.out.printf(PHASE_START_MESSAGE + "\n", phaseN++);
+        if (units.isEmpty()) {
+            if (otherUnits.isEmpty()) {
+                return null;
+            } else return new Pair<>(getUnitClass(otherUnits.get(0)), otherUnits);
+        } else if (otherUnits.isEmpty()) {
+            return new Pair<>(getUnitClass(units.get(0)), units);
+        }
+        List<Object> survivingUnits = null;
+        List<Object> survivingOtherUnits = null;
+        if(units.get(0) instanceof MordorUnit) {
+            survivingUnits = new ArrayList<>(units);
+            survivingOtherUnits = new ArrayList<>(otherUnits);
+        }
+        else if (units.get(0) instanceof MiddleEarthUnit) {
+            survivingUnits = new ArrayList<>(otherUnits);
+            survivingOtherUnits = new ArrayList<>(units);
+        }
 
         while (!survivingUnits.isEmpty() && !survivingOtherUnits.isEmpty()) {
-            Object unit1 = survivingUnits.get(random.nextInt(survivingUnits.size()));
-            Object unit2 = survivingOtherUnits.get(random.nextInt(survivingOtherUnits.size()));
+            AbstractUnit unit1 = (AbstractUnit) survivingUnits.get(random.nextInt(survivingUnits.size()));
+            AbstractUnit unit2 = (AbstractUnit) survivingOtherUnits.get(random.nextInt(survivingOtherUnits.size()));
 
-            int duelResult = duel((AbstractUnit) unit1, (AbstractUnit) unit2);
-            if (duelResult == 2) {
+            AbstractUnit duelWinner = duel(unit1, unit2);
+            if (duelWinner instanceof MiddleEarthUnit) {
                 survivingUnits.remove(unit1);
-            } else if (duelResult == 1) {
+            } else if (duelWinner instanceof MordorUnit) {
                 survivingOtherUnits.remove(unit2);
             }
         }
 
         if (!survivingUnits.isEmpty()) {
-            return new Pair<>(getUnitClass(units.get(0)), survivingUnits);
+            return new Pair<>(getUnitClass(survivingUnits.get(0)), survivingUnits);
         } else {
-            return new Pair<>(getUnitClass(otherUnits.get(0)), survivingOtherUnits);
+            return new Pair<>(getUnitClass(survivingOtherUnits.get(0)), survivingOtherUnits);
         }
     }
+
 
     private static Class<?> getUnitClass(Object unit) {
         if (unit instanceof MordorUnit) {
@@ -178,26 +227,53 @@ public class Battle {
         }
     }
 
-    private static int duel(AbstractUnit unit1, AbstractUnit unit2) {
+    private static AbstractUnit duel(AbstractUnit attacker, AbstractUnit defender) {
         int result = random.nextInt(2) + 1;
-        return result == 1 ? doDuelRound(unit1, unit2) : doDuelRound(unit2, unit1);
+        if (result == 1) {
+            return doDuelRound(attacker, defender);
+        } else {
+            return doDuelRound(defender, attacker);
+        }
     }
 
-    private static int doDuelRound(AbstractUnit attacker, AbstractUnit defender) {
+    private static AbstractUnit doDuelRound(AbstractUnit attacker, AbstractUnit defender) {
+        int defendersPowerBeforeStrike = defender.getPower();
+        int attackersPowerBeforeStrike = attacker.getPower();
+        AbstractUnit winner;
         attacker.strike(defender);
         if (defender.isAlive()) {
+            System.out.printf(STRIKE_MESSAGE_FORMAT + "\n", attacker.getClass().getSimpleName(), attacker.getName(), attacker.getPower(), defender.getClass().getSimpleName(), defender.getName(), defendersPowerBeforeStrike, DOES_NOT_KILL_HIM);
             defender.strike(attacker);
-            return attacker.isAlive() ? 3 : 2;
+            if (attacker.isAlive()) {
+                System.out.printf(STRIKE_MESSAGE_FORMAT + "\n", defender.getClass().getSimpleName(), defender.getName(), defender.getPower(), attacker.getClass().getSimpleName(), attacker.getName(), attackersPowerBeforeStrike, DOES_NOT_KILL_HIM);
+                winner = null;
+            } else {
+                System.out.printf(STRIKE_MESSAGE_FORMAT + "\n", defender.getClass().getSimpleName(), defender.getName(), defender.getPower(), attacker.getClass().getSimpleName(), attacker.getName(), attackersPowerBeforeStrike, KILLS_HIM);
+                winner = defender;
+            }
         } else {
-            return 1;
+            System.out.printf(STRIKE_MESSAGE_FORMAT + "\n", attacker.getClass().getSimpleName(), attacker.getName(), attacker.getPower(), defender.getClass().getSimpleName(), defender.getName(), defendersPowerBeforeStrike, KILLS_HIM);
+            winner = attacker;
         }
+        return winner;
     }
 
     private static int generateRandomArmySize(int minSize, int maxSize) {
         return random.nextInt(maxSize - minSize + 1) + minSize;
     }
 
-    public static void main(String[] args) {
+    private static void printArmy(Army<?> army) {
+        String armyType = null;
+        if (army.getArmy().get(0) instanceof MordorUnit) armyType = "Mordor";
+        else if (army.getArmy().get(0) instanceof MiddleEarthUnit) armyType = "Middle Earth";
+        System.out.printf("Army of %s consist of: \n", armyType);
+        for (int i = 0; i < army.getArmy().size(); i++) {
+            AbstractUnit unit = (AbstractUnit) army.getArmy().get(i);
+            System.out.printf("%s %s has power %d \n", unit.getClass().getSimpleName(), unit.getName(), unit.getPower());
+        }
+    }
+
+    public static void main(String[] args) throws ArmyMinSizeError {
         fight();
     }
 }
